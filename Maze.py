@@ -1,5 +1,5 @@
 import pygame
-import random
+import random, sys
 
 WIN_WIDTH, WIN_HEIGHT = 800, 800
 
@@ -7,14 +7,15 @@ WINDOW = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 pygame.display.set_caption("Maze Generator And Solver")
 
 # Color Palette
-WALL_COLOR = [0, 0, 0]
-PATH_COLOR = [255, 255, 255]
+WALL_COLOR = [0,0,0]
+PATH_COLOR = [255,255,255]
 GREEN = [0, 255, 0]
 
 
 class Maze:
     def __init__(self, width):
         height = width
+        sys.setrecursionlimit(width*height)
         self.matrix = [[0 for x in range(height * 2)] for x in range(width * 2)]
         self.visited = []
         self.Xscale = (WIN_WIDTH) // (len(self.matrix))
@@ -23,9 +24,6 @@ class Maze:
     def Generate(self):
         self.Recursively_Make([0, 0])
         return
-
-    def available(self, x, y):
-        pass
 
     def Recursively_Make(self, CurrentPos):
         while True:
@@ -67,24 +65,8 @@ class Maze:
         pygame.display.update()
 
 
-def main():
-    run = True
-    FPS = 10
-    clock = pygame.time.Clock()
-
-    maze = Maze(40)
-
-    while run:
-        #clock.tick(FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            maze.Generate()
+if __name__ == "__main__":
+    maze = Maze(50)
+    maze.Generate()
+    while True:
         maze.Draw()
-
-
-
-
-main()
