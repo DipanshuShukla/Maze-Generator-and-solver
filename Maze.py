@@ -1,7 +1,7 @@
 import pygame
 import random
 
-WIN_WIDTH, WIN_HEIGHT = 800, 600
+WIN_WIDTH, WIN_HEIGHT = 800, 800
 
 WINDOW = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 pygame.display.set_caption("Maze Generator And Solver")
@@ -13,11 +13,12 @@ GREEN = [0, 255, 0]
 
 
 class Maze:
-    def __init__(self, width, height):
-        self.Xscale = (WIN_WIDTH) // width//2
-        self.Yscale = (WIN_HEIGHT) // height//2
-        self.matrix = [[0 for x in range(width * 2)] for x in range(height * 2)]
+    def __init__(self, width):
+        height = width
+        self.matrix = [[0 for x in range(height * 2)] for x in range(width * 2)]
         self.visited = []
+        self.Xscale = (WIN_WIDTH) / (len(self.matrix))
+        self.Yscale = (WIN_HEIGHT) / (len(self.matrix[0]))
 
     def Generate(self):
         self.Recursively_Make([0, 0])
@@ -27,11 +28,15 @@ class Maze:
 
     def Recursively_Make(self, CurrentPos):
         while True:
-            self.Draw(CurrentPos)
+            self.Draw()
+            pygame.draw.rect(WINDOW, GREEN,
+                             (self.Xscale * CurrentPos[1] + self.Xscale // 2,
+                              self.Yscale * CurrentPos[0] + self.Yscale // 2, self.Xscale * 2,
+                              self.Yscale * 2))
+            pygame.display.update()
             self.visited.append(CurrentPos)
             x, y = CurrentPos[0], CurrentPos[1]
-            print(CurrentPos)
-            self.matrix[x][y] = 1
+            self.matrix[y][x] = 1
 
             rand = [[x - 2, y], [x + 2, y], [x, y - 2], [x, y + 2]]
             [tx, ty] = random.choice(rand)
@@ -43,24 +48,21 @@ class Maze:
             else:
                 rand = [x for x in rand if x != [tx, ty]]
                 self.visited.append([tx, ty])
-                self.matrix[tx][ty] = 1
-                self.matrix[(x + tx) // 2][(y + ty) // 2] = 1
+                self.matrix[ty][tx] = 1
+                self.matrix[(y + ty) // 2][(x + tx) // 2] = 1
                 self.Recursively_Make([tx, ty])
 
-    def Draw(self, CurrentPos):
+    def Draw(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
-        #pygame.time.Clock().tick(30)
         WINDOW.fill(WALL_COLOR)
-        for y in range(len(self.matrix)):
-            for x in range(len(self.matrix[0])):
+        for y in range(len(self.matrix[0])):
+            for x in range(len(self.matrix)):
                 if self.matrix[x][y] == 1:
-                    pygame.draw.rect(WINDOW, PATH_COLOR, (self.Xscale * x, self.Yscale * y, self.Xscale, self.Yscale))
-
-        pygame.draw.rect(WINDOW, GREEN,
-                         (self.Xscale * CurrentPos[0], self.Yscale * CurrentPos[1], self.Xscale * 2, self.Yscale * 2))
-
+                    pygame.draw.rect(WINDOW, PATH_COLOR, (
+                        self.Xscale * x + self.Xscale // 2, self.Yscale * y + self.Yscale // 2, self.Yscale,
+                        self.Xscale))
         pygame.display.update()
 
 
@@ -69,7 +71,7 @@ def main():
     FPS = 10
     clock = pygame.time.Clock()
 
-    maze = Maze(40, 40)
+    maze = Maze(40)
 
     while run:
         clock.tick(FPS)
