@@ -17,11 +17,12 @@ class Maze:
         height = width
         self.matrix = [[0 for x in range(height * 2)] for x in range(width * 2)]
         self.visited = []
-        self.Xscale = (WIN_WIDTH) / (len(self.matrix))
-        self.Yscale = (WIN_HEIGHT) / (len(self.matrix[0]))
+        self.Xscale = (WIN_WIDTH) // (len(self.matrix))
+        self.Yscale = (WIN_HEIGHT) // (len(self.matrix[0]))
 
     def Generate(self):
         self.Recursively_Make([0, 0])
+        return
 
     def available(self, x, y):
         pass
@@ -61,8 +62,8 @@ class Maze:
             for x in range(len(self.matrix)):
                 if self.matrix[x][y] == 1:
                     pygame.draw.rect(WINDOW, PATH_COLOR, (
-                        self.Xscale * x + self.Xscale // 2, self.Yscale * y + self.Yscale // 2, self.Yscale,
-                        self.Xscale))
+                        self.Xscale * x + self.Xscale // 2, self.Yscale * y + self.Yscale // 2, self.Xscale,
+                        self.Yscale))
         pygame.display.update()
 
 
@@ -74,12 +75,16 @@ def main():
     maze = Maze(40)
 
     while run:
-        clock.tick(FPS)
+        #clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_SPACE]:
+            maze.Generate()
+        maze.Draw()
 
-        maze.Generate()
+
 
 
 main()
