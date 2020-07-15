@@ -1,24 +1,33 @@
 import pygame
 import random, sys
 
-WIN_WIDTH, WIN_HEIGHT = 800, 800
+pygame.font.init()
+
+WIN_WIDTH, WIN_HEIGHT = 1000, 600
 
 WINDOW = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 pygame.display.set_caption("Maze Generator And Solver")
 
+BUTTON_SIZE = [(WIN_WIDTH - WIN_HEIGHT) // 1.3, WIN_HEIGHT // 10]
+
 # Color Palette
-WALL_COLOR = [0,0,0]
-PATH_COLOR = [255,255,255]
+WALL_COLOR = [0, 139, 139]
+PATH_COLOR = [175, 234, 220]
+TEXT_0 = [0, 139, 139]
 GREEN = [0, 255, 0]
+
+# Fonts
+TITLE_FONT = pygame.font.SysFont("comicsans", 60)
+LABEL_FONT = pygame.font.SysFont("comicsans", 20)
 
 
 class Maze:
     def __init__(self, width):
         height = width
-        sys.setrecursionlimit(width*height)
-        self.matrix = [[0 for x in range(height * 2)] for x in range(width * 2)]
+        sys.setrecursionlimit(width * height)
+        self.matrix = [[1 for x in range(height * 2)] for x in range(width * 2)]
         self.visited = []
-        self.Xscale = (WIN_WIDTH) // (len(self.matrix))
+        self.Xscale = (WIN_HEIGHT) // (len(self.matrix))
         self.Yscale = (WIN_HEIGHT) // (len(self.matrix[0]))
 
     def Generate(self):
@@ -35,7 +44,7 @@ class Maze:
             pygame.display.update()
             self.visited.append(CurrentPos)
             x, y = CurrentPos[0], CurrentPos[1]
-            self.matrix[y][x] = 1
+            self.matrix[y][x] = 0
 
             rand = [[x - 2, y], [x + 2, y], [x, y - 2], [x, y + 2]]
             [tx, ty] = random.choice(rand)
@@ -47,8 +56,8 @@ class Maze:
             else:
                 rand = [x for x in rand if x != [tx, ty]]
                 self.visited.append([tx, ty])
-                self.matrix[ty][tx] = 1
-                self.matrix[(y + ty) // 2][(x + tx) // 2] = 1
+                self.matrix[ty][tx] = 0
+                self.matrix[(y + ty) // 2][(x + tx) // 2] = 0
                 self.Recursively_Make([tx, ty])
 
     def Draw(self):
@@ -58,10 +67,21 @@ class Maze:
         WINDOW.fill(WALL_COLOR)
         for y in range(len(self.matrix[0])):
             for x in range(len(self.matrix)):
-                if self.matrix[x][y] == 1:
+                if self.matrix[x][y] == 0:
                     pygame.draw.rect(WINDOW, PATH_COLOR, (
                         self.Xscale * x + self.Xscale // 2, self.Yscale * y + self.Yscale // 2, self.Xscale,
                         self.Yscale))
+        pygame.draw.rect(WINDOW, PATH_COLOR, (WIN_HEIGHT + 3, 0, WIN_HEIGHT + 3, WIN_WIDTH))
+
+        # pygame.draw.rect(WINDOW, TEXT_0, (WIN_HEIGHT + 3, 0, WIN_HEIGHT + 3, WIN_WIDTH))
+
+        text = TITLE_FONT.render("Title Goes Here ", 1, TEXT_0)
+        WINDOW.blit(text, (WIN_WIDTH - (WIN_WIDTH - WIN_HEIGHT) // 2 - text.get_width() // 2,
+                           WIN_WIDTH // ((WIN_WIDTH - WIN_HEIGHT) // 2) + text.get_height()))
+
+        pygame.draw.rect(WINDOW, TEXT_0, ((WIN_WIDTH - (WIN_WIDTH - WIN_HEIGHT) // 2 - text.get_width() // 2)-(BUTTON_SIZE[0] - text.get_width())//2,
+                           (WIN_WIDTH // ((WIN_WIDTH - WIN_HEIGHT) // 2) + text.get_height()) - (BUTTON_SIZE[1] - text.get_height())//2, BUTTON_SIZE[0],BUTTON_SIZE[1]), 3)
+
         pygame.display.update()
 
 
